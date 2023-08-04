@@ -5,7 +5,7 @@ import styles from './Featured.module.scss';
 
 const Featured = () => {
   const { data, loading, error } = useFetch<CountByCity[]>(
-    `http://localhost:4000/api/hotels/count/byCity?cities=berlin,Madrid,london`,
+    `${process.env.REACT_APP_API_ENDPOINT}/hotels/count/byCity?cities=berlin,Madrid,london`,
   );
 
   return (
