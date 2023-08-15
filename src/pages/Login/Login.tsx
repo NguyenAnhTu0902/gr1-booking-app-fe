@@ -1,8 +1,9 @@
 import axios from 'axios';
 import React, { useContext, useState } from 'react';
-import { AuthContext } from '../../context/AuthContext';
-import styles from './Login.module.scss';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
+import { toast } from 'react-toastify';
+import styles from './Login.module.scss';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
@@ -34,6 +35,11 @@ const Login = () => {
         dispatch({ type: 'LOGIN_FAILURE', payload: err.response.data });
     }
   };
+
+  if (error) {
+    toast.error(`${error.message}`, { toastId: 'LOGIN_FAILURE' });
+  }
+
   return (
     <div className={styles['login']}>
       <div className={styles['login__container']}>
@@ -58,7 +64,6 @@ const Login = () => {
         >
           Login
         </button>
-        {error && <span>{error.message}</span>}
       </div>
     </div>
   );

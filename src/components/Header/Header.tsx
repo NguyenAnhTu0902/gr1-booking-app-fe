@@ -22,15 +22,22 @@ interface HeaderProps {
   type?: string;
 }
 
+export interface DatesInterface {
+  startDate: Date;
+  endDate: Date;
+  key: string;
+}
+
 const Header = ({ type }: HeaderProps) => {
   const { user } = useContext(AuthContext);
   const { dispatch } = useContext(SearchContext);
   const [destination, setDestination] = useState('');
   const [openDate, setOpenDate] = useState(false);
-  const [dates, setDates] = useState<any>([
+  const currentDate = new Date();
+  const [dates, setDates] = useState<DatesInterface[]>([
     {
-      startDate: new Date(),
-      endDate: new Date(),
+      startDate: currentDate,
+      endDate: new Date(currentDate.getTime() + 86400000),
       key: 'selection',
     },
   ]);
@@ -43,6 +50,10 @@ const Header = ({ type }: HeaderProps) => {
   });
 
   const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate('/login');
+  };
 
   const handleOption = (name: string, operation: 'd' | 'i') => {
     setOptions((prev) => {
@@ -103,7 +114,10 @@ const Header = ({ type }: HeaderProps) => {
               more with a free Zuongbooking account
             </p>
             {!user && (
-              <button className={styles['header__container__btn']}>
+              <button
+                className={styles['header__container__btn']}
+                onClick={handleClick}
+              >
                 Sign in / Register
               </button>
             )}
@@ -328,6 +342,7 @@ const Header = ({ type }: HeaderProps) => {
                 <button
                   className={styles['header__container__btn']}
                   onClick={handleSearch}
+                  disabled={!destination}
                 >
                   Search
                 </button>

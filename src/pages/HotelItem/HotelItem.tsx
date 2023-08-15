@@ -16,9 +16,9 @@ import { AuthContext } from '../../context/AuthContext';
 import { SearchContext } from '../../context/SearchContext';
 import useFetch from '../../hooks/useFetch';
 import { Hotel } from '../../models/Hotel';
-import styles from './Hotel.module.scss';
+import styles from './HotelItem.module.scss';
 
-const HotelPage = () => {
+const HotelItem = () => {
   const { dates, options } = useContext(SearchContext);
   const location = useLocation();
   const hotelId = location.pathname.split('/')[2];
@@ -29,7 +29,6 @@ const HotelPage = () => {
   const { data, loading, error } = useFetch<Hotel>(
     `${process.env.REACT_APP_API_ENDPOINT}/hotels/${hotelId}`,
   );
-
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -66,6 +65,10 @@ const HotelPage = () => {
     }
   };
 
+  if (error) {
+    return <div>{error.message}</div>;
+  }
+
   return (
     <div className={styles['hotel']}>
       <Navbar />
@@ -101,7 +104,10 @@ const HotelPage = () => {
             </div>
           )}
           <div className={styles['hotel__container__wrapper']}>
-            <button className={styles['hotel__container__wrapper__book-btn']}>
+            <button
+              className={styles['hotel__container__wrapper__book-btn']}
+              onClick={handleBook}
+            >
               Reserve or Book Now!
             </button>
             <h1 className={styles['hotel__container__wrapper__title']}>
@@ -183,10 +189,13 @@ const HotelPage = () => {
         </div>
       )}
       {isOpenBookingModal && (
-        <Reserve setIsOpenBookingModal={setIsOpenBookingModal} hotelId={hotelId} />
+        <Reserve
+          setIsOpenBookingModal={setIsOpenBookingModal}
+          hotelId={hotelId}
+        />
       )}
     </div>
   );
 };
 
-export default HotelPage;
+export default HotelItem;

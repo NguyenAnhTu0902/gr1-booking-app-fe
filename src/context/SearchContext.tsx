@@ -1,9 +1,10 @@
 import React from 'react';
 import { createContext, useReducer } from 'react';
+import { DatesInterface } from '../components/Header/Header';
 
 interface SearchContextProps {
   city: string | undefined;
-  dates: any[];
+  dates: DatesInterface[];
   options: {
     adult: number;
     children: number;
@@ -12,9 +13,17 @@ interface SearchContextProps {
   dispatch?: React.Dispatch<any>;
 }
 
+const currentDate = new Date();
+
 const INITIAL_STATE: SearchContextProps = {
   city: undefined,
-  dates: [],
+  dates: [
+    {
+      startDate: currentDate,
+      endDate: new Date(currentDate.getTime() + 86400000),
+      key: 'selection',
+    },
+  ],
   options: {
     adult: 1,
     children: 0,
@@ -28,7 +37,7 @@ const SearchReducer = (state, action) => {
   switch (action.type) {
     case 'NEW_SEARCH':
       return action.payload;
-    case 'RESET_SEARCJ':
+    case 'RESET_SEARCH':
       return INITIAL_STATE;
     default:
       return state;

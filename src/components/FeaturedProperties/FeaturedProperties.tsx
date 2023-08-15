@@ -8,7 +8,10 @@ const FeaturedProperties = () => {
   const { data, loading, error } = useFetch<Hotel[]>(
     `${process.env.REACT_APP_API_ENDPOINT}/hotels?featured=true&limit=4`,
   );
-
+  
+  if (error) {
+    return <div>{error.message}</div>;
+  }
   return (
     <div className={styles['featured-properties']}>
       {loading ? (
