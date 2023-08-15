@@ -10,6 +10,10 @@
       gap: 10px;
       display: flex;
       flex-direction: column;
+      
+      @media screen and (max-width: 1024px) {
+        font-size: 14px;
+      }
   
       &__img {
         width: 100%;
