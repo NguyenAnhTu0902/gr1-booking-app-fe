@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import styles from './Login.module.scss';
+import Navbar from '../../components/Navbar';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
-    username: '',
+    email: '',
     password: '',
   });
 
@@ -36,36 +37,49 @@ const Login = () => {
     }
   };
 
+  const handleNavigate = () => {
+    navigate('/register');
+  };
+
   if (error) {
     toast.error(`${error.message}`, { toastId: 'LOGIN_FAILURE' });
   }
 
   return (
-    <div className={styles['login']}>
-      <div className={styles['login__container']}>
-        <input
-          type="text"
-          placeholder="Username"
-          id="username"
-          onChange={handleInputChange}
-          className={styles['login__container__input']}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          id="password"
-          onChange={handleInputChange}
-          className={styles['login__container__input']}
-        />
-        <button
-          className={styles['login__container__login-btn']}
-          onClick={handleLogin}
-          disabled={loading}
-        >
-          Login
-        </button>
+    <>
+      <Navbar type="login" />
+      <div className={styles['login']}>
+        <div className={styles['login__container']}>
+          <div className={styles['login__container__header']}>
+            Sign in or create an account
+          </div>
+          <input
+            type="text"
+            placeholder="Email"
+            id="email"
+            onChange={handleInputChange}
+            className={styles['login__container__input']}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            id="password"
+            onChange={handleInputChange}
+            className={styles['login__container__input']}
+          />
+          <button
+            className={styles['login__container__login-btn']}
+            onClick={handleLogin}
+            disabled={loading}
+          >
+            Sign in
+          </button>
+          <span className={styles['signup-btn']} onClick={handleNavigate}>
+            Create a new account
+          </span>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

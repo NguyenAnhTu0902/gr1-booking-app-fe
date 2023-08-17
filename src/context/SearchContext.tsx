@@ -1,6 +1,6 @@
 import React from 'react';
 import { createContext, useReducer } from 'react';
-import { DatesInterface } from '../components/Header/Header';
+import { DatesInterface } from '../components/Header';
 
 interface SearchContextProps {
   city: string | undefined;
