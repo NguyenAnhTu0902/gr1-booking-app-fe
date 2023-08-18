@@ -1,31 +1,71 @@
 .navbar {
-    height: 50px;
-    background-color: #003580;
+  height: 50px;
+  background-color: #003580;
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+
+  &__container {
+    width: 100%;
+    max-width: 1140px;
+    color: white;
     display: flex;
-    justify-content: center;
-  
-    &__container {
-      width: 100%;
-      max-width: 1024px;
-      color: white;
+    align-items: center;
+    justify-content: space-between;
+
+    @media screen and (max-width: 1024px) {
+      padding: 0 50px;
+    }
+
+    @media screen and (max-width: 480px) {
+      padding: 0 10px;
+    }
+
+    &__logo {
+      font-weight: bold;
+      font-size: 24px;
+
+      @media screen and (max-width: 480px) {
+        font-size: 16px;
+      }
+    }
+
+    &__items {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-  
-      @media screen and (max-width: 1024px) {
-        padding: 0 50px;
-      }
-  
-      &__logo {
+
+      &__info-btn {
+        font-family: inherit;
         font-weight: 500;
-      }
-  
-      &__items__btn {
-        margin-left: 20px;
-        border: none;
-        padding: 5px 10px;
+        margin-right: 10px;
+        border: 1px solid #fff;
+        padding: 8px;
+        font-size: 14px;
+        color: #fff;
+        background-color: #003580;
         cursor: pointer;
-        color: #003580;
+
+        &:hover {
+          background-color: #275191;
+        }
+
+        @media screen and (max-width: 480px) {
+          font-size: 12px;
+        }
+      }
+
+      &__btn {
+        font-weight: 600;
+        margin-left: 10px;
+        border: none;
+        padding: 8px 16px;
+        cursor: pointer;
+        color: #0071c2;
+
+        @media screen and (max-width: 480px) {
+          font-size: 12px;
+        }
       }
     }
   }
+}

@@ -1,0 +1,77 @@
+.register {
+  height: calc(100vh - 70px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    &__header {
+      width: 300px;
+      font-weight: bold;
+      font-size: 24px;
+      margin-bottom: 24px;
+    }
+
+    &__input {
+      font-family: inherit;
+      height: 30px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      border: 0.5px solid black;
+    }
+
+    &__register-btn {
+      border: none;
+      padding: 14px 20px;
+      background-color: #0071c2;
+      color: white;
+      font-weight: 500;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    &__previous-btn {
+      border: 1px solid #0071c2;
+      padding: 8px 20px;
+      background-color: white;
+      color: #0071c2;
+      font-weight: 500;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    &__next-btn {
+      border: none;
+      padding: 10px 20px;
+      background-color: #0071c2;
+      color: white;
+      font-weight: 500;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    &__register-btn:disabled {
+      background-color: rgb(185, 185, 185);
+      cursor: not-allowed;
+    }
+  }
+}
+
+.login-btn {
+  color: #0071c2;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

@@ -1,80 +1,81 @@
 .reserve {
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4);
-    position: fixed;
-    top: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  
-    &__container {
-      background-color: #fff;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+
+  &__container {
+    background-color: #fff;
+    padding: 20px;
+    position: relative;
+
+    &__close-btn {
+      position: absolute;
+      padding: 10px;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    &__item {
+      display: flex;
+      align-items: center;
+      gap: 50px;
       padding: 20px;
-      position: relative;
-  
-      &__close-btn {
-        position: absolute;
-        padding: 10px;
-        top: 10px;
-        right: 10px;
-        cursor: pointer;
-      }
-  
-      &__item {
+      justify-content: space-between;
+
+      &__information {
         display: flex;
-        align-items: center;
-        gap: 50px;
-        padding: 20px;
-        justify-content: space-between;
-  
-        &__information {
+        flex-direction: column;
+        gap: 5px;
+
+        &__title {
+          font-weight: 500;
+        }
+
+        &__description {
+          font-weight: 300;
+        }
+
+        &__max-people {
+          font-size: 12px;
+        }
+
+        &__price {
+          font-weight: 500;
+        }
+      }
+
+      &__select {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        font-size: 8px;
+        color: gray;
+
+        &__room {
           display: flex;
           flex-direction: column;
-          gap: 5px;
-  
-          &__title {
-            font-weight: 500;
-          }
-  
-          &__description {
-            font-weight: 300;
-          }
-  
-          &__max-people {
-            font-size: 12px;
-          }
-  
-          &__price {
-            font-weight: 500;
-          }
         }
-  
-        &__select {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 5px;
-          font-size: 8px;
-          color: gray;
-  
-          &__room {
-            display: flex;
-            flex-direction: column;
-          }
-        }
-      }
-  
-      &__btn {
-        border: none;
-        padding: 10px 20px;
-        background-color: #0071c2;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-        border-radius: 5px;
-        width: 100%;
-        margin-top: 20px;
       }
     }
+
+    &__btn {
+      border: none;
+      padding: 10px 20px;
+      background-color: #0071c2;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      width: 100%;
+      margin-top: 20px;
+    }
   }
+}
