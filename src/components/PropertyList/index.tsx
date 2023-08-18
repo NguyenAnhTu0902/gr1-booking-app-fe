@@ -4,10 +4,11 @@ import { CountByType } from '../../models/CountByType';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import styles from './PropertyList.module.scss';
+import { useNavigate } from 'react-router-dom';
 import PropertyListSkeleton from '../LoadingSkeleton/PropertyListSkeleton';
-import Skeleton from 'react-loading-skeleton';
 
 const PropertyList = () => {
+  const navigate = useNavigate();
   const { data, loading, error } = useFetch<CountByType[]>(
     `${process.env.REACT_APP_API_ENDPOINT}/hotels/count/byType`,
   );
@@ -44,44 +45,42 @@ const PropertyList = () => {
     window.addEventListener('resize', handleResize);
   }, [window.innerWidth]);
 
+  const handleClick = (propertyType: string) => {
+    navigate(`/all-${propertyType}`);
+    location.reload();
+  };
+
   if (error) {
     return <div>{error.message}</div>;
   }
 
   return (
     <div className={styles['property-list']}>
-      <Swiper spaceBetween={10} slidesPerView={slidesNumber}>
-        {data &&
-          images.map((img, index) => (
-            <SwiperSlide key={index}>
-              <div className={styles['property-list']}>
-                <div className={styles['property-list__item']}>
-                  {loading ? (
-                    <PropertyListSkeleton />
-                  ) : (
+      {loading ? (
+        <PropertyListSkeleton count={slidesNumber} />
+      ) : (
+        <Swiper spaceBetween={10} slidesPerView={slidesNumber}>
+          {data &&
+            images.map((img, index) => (
+              <SwiperSlide key={index}>
+                <div className={styles['property-list']}>
+                  <div className={styles['property-list__item']}>
                     <img
                       src={img}
                       alt=""
                       className={styles['property-list__item__img']}
+                      onClick={() => handleClick(data[index]?.type)}
                     />
-                  )}
-                  <div className={styles['property-list__item__title']}>
-                    <h1>
-                      {loading ? <Skeleton width={100} /> : data[index]?.type}
-                    </h1>
-                    <h2>
-                      {loading ? (
-                        <Skeleton width={80} />
-                      ) : (
-                        `${data[index]?.count} ${data[index]?.type}`
-                      )}
-                    </h2>
+                    <div className={styles['property-list__item__title']}>
+                      <h1>{data[index]?.type}</h1>
+                      <h2>{`${data[index]?.count} ${data[index]?.type}`}</h2>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </SwiperSlide>
-          ))}
-      </Swiper>
+              </SwiperSlide>
+            ))}
+        </Swiper>
+      )}
     </div>
   );
 };

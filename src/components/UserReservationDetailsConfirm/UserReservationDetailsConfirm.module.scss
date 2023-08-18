@@ -1,0 +1,54 @@
+.reservation-confirm {
+    background-color: #fff;
+    border: 1px solid #e7e7e7;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  
+    &__header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      span {
+        font-weight: 600;
+        font-size: 16px;
+        @media screen and (max-width: 480px) {
+          font-size: 14px;
+        }
+      }
+      h2 {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+  
+        @media screen and (max-width: 768px) {
+          font-size: 20px;
+        }
+        @media screen and (max-width: 480px) {
+          font-size: 18px;
+        }
+      }
+    }
+  
+    &__detail {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+  
+      &__item {
+        display: flex;
+        gap: 8px;
+        color: #262626;
+        &__icon {
+          color: #268107;
+        }
+  
+        span {
+          @media screen and (max-width: 480px) {
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }

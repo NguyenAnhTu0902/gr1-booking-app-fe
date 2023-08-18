@@ -1,12 +1,15 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import App from './App';
 import './styles/global.scss';
 import { AuthContextProvider } from './context/AuthContext';
 import { ReserveContextProvider } from './context/ReserveContext';
 import { SearchContextProvider } from './context/SearchContext';
 
-ReactDOM.render(
+const rootElement = document.getElementById('root');
+const root = ReactDOM.createRoot(rootElement!);
+
+root.render(
   <React.StrictMode>
     <AuthContextProvider>
       <SearchContextProvider>
@@ -15,6 +18,5 @@ ReactDOM.render(
         </ReserveContextProvider>
       </SearchContextProvider>
     </AuthContextProvider>
-  </React.StrictMode>,
-  document.getElementById('root'),
+  </React.StrictMode>
 );

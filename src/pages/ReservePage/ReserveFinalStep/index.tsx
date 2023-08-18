@@ -10,8 +10,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
-import React, { useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import ReserveSideBar from '../../../components/ReserveSideBar';
 import { AuthContext } from '../../../context/AuthContext';
@@ -20,6 +19,7 @@ import { SearchContext } from '../../../context/SearchContext';
 import { Form } from '../../../models/Form';
 import { Hotel } from '../../../models/Hotel';
 import { Room } from '../../../models/Room';
+import { checkout } from '../../../services/checkout';
 import { dayDifference } from '../../../services/utils';
 import styles from './ReserveFinalStep.module.scss';
 
@@ -42,8 +42,7 @@ const ReserveFinalStep = ({
   const { selectedRooms } = useContext(ReserveContext);
   const { user } = useContext(AuthContext);
 
-  const navigate = useNavigate();
-
+  const [isDisabled, setIsDisabled] = useState(true);
   const numberOfDays = dayDifference(dates[0].startDate, dates[0].endDate);
   const price = hotel && numberOfDays * hotel.cheapestPrice * options.room;
 
@@ -52,6 +51,18 @@ const ReserveFinalStep = ({
       return { ...prev, price: price && price * 1.05 };
     });
   }, []);
+
+  useEffect(() => {
+    setIsDisabled(
+      !formData.firstName ||
+        !formData.lastName ||
+        !formData.email ||
+        !formData.country ||
+        !formData.phoneNumber ||
+        !formData.hotelId ||
+        !formData.roomIds,
+    );
+  }, [formData]);
 
   const getDatesInRage = (startDate, endDate) => {
     const date = new Date(startDate.getTime());
@@ -87,8 +98,17 @@ const ReserveFinalStep = ({
         }),
       );
 
+      // Redirect to Stripe
+      const lineItems: any = [];
+      lineItems.push({
+        price: 'price_1MZAv2I7VVxG2TJjxzaod1iy',
+        quantity: options.room,
+      }),
+        checkout({
+          lineItems,
+        });
+
       toast.success('Reserve Hotel Succeeded');
-      navigate('/');
     } catch (err) {
       console.log('Update room availability err', err);
     }
@@ -102,7 +122,7 @@ const ReserveFinalStep = ({
 
   return (
     <div className={styles['reserve']}>
-      <ReserveSideBar roomData={roomData} hotel={hotel} />
+      <ReserveSideBar roomData={roomData} />
       <div className={styles['reserve__personal']}>
         <div className={styles['reserve__personal__container']}>
           <div className={styles['reserve__personal__container__hotel']}>
@@ -313,6 +333,37 @@ const ReserveFinalStep = ({
             </div>
           </div>
         </div>
+        {!formData.firstName ? (
+          <span className={styles['reserve__warning']}>
+            * Please input your first name
+          </span>
+        ) : !formData.lastName ? (
+          <span className={styles['reserve__warning']}>
+            * Please input your last name
+          </span>
+        ) : !formData.email ? (
+          <span className={styles['reserve__warning']}>
+            * Please input your email
+          </span>
+        ) : !formData.country ? (
+          <span className={styles['reserve__warning']}>
+            * Please input your country
+          </span>
+        ) : !formData.phoneNumber ? (
+          <span className={styles['reserve__warning']}>
+            * Please input your phone number
+          </span>
+        ) : !formData.hotelId ? (
+          <span className={styles['reserve__warning']}>
+            * Please choose a hotel
+          </span>
+        ) : !formData.roomIds ? (
+          <span className={styles['reserve__warning']}>
+            * Please choose hotel rooms
+          </span>
+        ) : (
+          <span></span>
+        )}
         <div className={styles['reserve__btn__group']}>
           <button
             onClick={() => setStep(1)}
@@ -324,15 +375,7 @@ const ReserveFinalStep = ({
           <button
             onClick={handleReserve}
             className={styles['reserve__btn__group__reserve-button']}
-            disabled={
-              !formData.firstName ||
-              !formData.lastName ||
-              !formData.email ||
-              !formData.country ||
-              !formData.phoneNumber ||
-              !formData.hotelId ||
-              !formData.roomIds
-            }
+            disabled={isDisabled}
           >
             <FontAwesomeIcon icon={faLock} size="lg" />
             <span>Complete Booking</span>

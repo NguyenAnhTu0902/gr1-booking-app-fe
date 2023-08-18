@@ -1,16 +1,22 @@
 import { format } from 'date-fns';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '../../components/Header';
 import Navbar from '../../components/Navbar';
 import { DateRange } from 'react-date-range';
 import './HotelList.css';
 import styles from './HotelList.module.scss';
+import SearchInput, { createFilter } from 'react-search-input';
 import SearchItem from '../../components/SearchItem';
 import useFetch from '../../hooks/useFetch';
 import { Hotel } from '../../models/Hotel';
 import { SearchContext } from '../../context/SearchContext';
-import { CountByCity } from '../../models/CountByCity';
+import SearchItemSkeleton from '../../components/LoadingSkeleton/SearchItemSkeleton';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { City } from '../../models/City';
+import Skeleton from 'react-loading-skeleton';
+import HotelFilter from '../../components/HotelFilter';
 
 interface OptionsInterface {
   adult: number;
@@ -21,6 +27,10 @@ interface OptionsInterface {
 const HotelList = () => {
   const location = useLocation();
   const { dispatch } = useContext(SearchContext);
+  const { data: cityData } = useFetch<City[]>(
+    `${process.env.REACT_APP_API_ENDPOINT}/cities`,
+  );
+
   const currentDate = new Date();
   const [destination, setDestination] = useState(
     location.state?.destination || '',
@@ -39,16 +49,12 @@ const HotelList = () => {
     location.state?.options || { adult: 1, children: 0, room: 1 },
   );
   const [openOptions, setOpenOptions] = useState(false);
-  const [min, setMin] = useState<string>('0');
-  const [max, setMax] = useState<string>('999');
-
-  const { data, loading, error, reFetch } = useFetch<Hotel[]>(
-    `${process.env.REACT_APP_API_ENDPOINT}/hotels?city=${destination}&min=${min}&max=${max}`,
+  const [value, setValue] = useState<number[]>([0, 500]);
+  const [queryString, setQueryString] = useState<string>(
+    `${process.env.REACT_APP_API_ENDPOINT}/hotels?city=${destination}&min=${value[0]}&max=${value[1]}`,
   );
 
-  const { data: countData } = useFetch<CountByCity[]>(
-    `${process.env.REACT_APP_API_ENDPOINT}/hotels/count/byCity?cities=${destination}`,
-  );
+  const { data, loading, error, reFetch } = useFetch<Hotel[]>(queryString);
 
   const handleOption = (name: string, operation: 'd' | 'i') => {
     setOptions((prev) => {
@@ -59,6 +65,12 @@ const HotelList = () => {
     });
   };
 
+  useEffect(() => {
+    setQueryString(
+      `${process.env.REACT_APP_API_ENDPOINT}/hotels?city=${destination}&min=${value[0]}&max=${value[1]}`,
+    );
+  }, [value, destination]);
+
   const handleSearch = () => {
     dispatch &&
       dispatch({
@@ -67,6 +79,12 @@ const HotelList = () => {
       });
     reFetch();
   };
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const KEYS_TO_FILTERS = ['name'];
+  const filteredCity: any = cityData?.filter(
+    createFilter(searchTerm, KEYS_TO_FILTERS),
+  );
 
   if (error) {
     return <div>{error.message}</div>;
@@ -79,256 +97,294 @@ const HotelList = () => {
       <div className="listContainer">
         <div className="listWrapper">
           <div className="listSearch">
-            <h1 className="lsTitle">Search</h1>
-            <div className="lsItem">
-              <label>Destination</label>
-              <input
-                value={destination}
-                type="text"
-                onChange={(e) => setDestination(e.target.value)}
-              />
-            </div>
-            <div className="lsItem">
-              <label>Check-in date</label>
-              <span onClick={() => setOpenDate(!openDate)}>{`${format(
-                dates[0].startDate,
-                'MM/dd/yyyy',
-              )} to ${format(dates[0].endDate, 'MM/dd/yyyy')}`}</span>
-              {openDate && (
-                <DateRange
-                  editableDateInputs={true}
-                  onChange={(item) => setDates([item.selection])}
-                  moveRangeOnFirstSelection={false}
-                  ranges={dates}
-                  minDate={new Date()}
-                  className={styles['header__container__search__item__date']}
-                />
-              )}
-            </div>
-            <div className="lsItem">
-              <label>1-night stay</label>
-              <div className="lsOption">
-                <div className={styles['header__container__search__item']}>
-                  <span
-                    className={styles['header__container__search__item__text']}
-                    onClick={() => setOpenOptions(!openOptions)}
-                  >
-                    {`${options.adult} adult・${options.children} children・${options.room} room`}
-                  </span>
-                  {openOptions && (
+            <div className="listSearchContainer">
+              <h1 className="lsTitle">Search</h1>
+              <div className="lsItem">
+                <label>Destination/property name</label>
+                <div className="lsDestination">
+                  <FontAwesomeIcon icon={faMagnifyingGlass} size="lg" />
+                  <SearchInput
+                    className={styles['header__container__search__item__input']}
+                    placeholder="Where are you going?"
+                    onChange={(e: any) => {
+                      setSearchTerm(e);
+                    }}
+                    value={destination}
+                  />
+                  {searchTerm !== '' && (
                     <div
                       className={
-                        styles['header__container__search__item__options']
+                        styles['header__container__search__item__result']
                       }
                     >
-                      <div
-                        className={
-                          styles[
-                            'header__container__search__item__options__item'
-                          ]
-                        }
-                      >
-                        <span
-                          className={
-                            styles[
-                              'header__container__search__item__options__item__text'
-                            ]
-                          }
-                        >
-                          Adult
-                        </span>
-                        <div
-                          className={
-                            styles[
-                              'header__container__search__item__options__item__counter-container'
-                            ]
-                          }
-                        >
-                          <button
+                      {filteredCity.length ? (
+                        filteredCity.map((city: City, index: number) => (
+                          <div
                             className={
                               styles[
-                                'header__container__search__item__options__item__counter-btn'
+                                'header__container__search__item__result__item'
                               ]
                             }
-                            onClick={() => handleOption('adult', 'd')}
-                            disabled={options.adult <= 1}
+                            key={index}
                           >
-                            -
-                          </button>
-                          <span
-                            className={
-                              styles[
-                                'header__container__search__item__options__item__counter-number'
-                              ]
-                            }
-                          >
-                            {options.adult}
-                          </span>
-                          <button
-                            className={
-                              styles[
-                                'header__container__search__item__options__item__counter-btn'
-                              ]
-                            }
-                            onClick={() => handleOption('adult', 'i')}
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                      <div
-                        className={
-                          styles[
-                            'header__container__search__item__options__item'
-                          ]
-                        }
-                      >
-                        <span
-                          className={
-                            styles[
-                              'header__container__search__item__options__item__text'
-                            ]
-                          }
-                        >
-                          Children
-                        </span>
-                        <div
-                          className={
-                            styles[
-                              'header__container__search__item__options__item__counter-container'
-                            ]
-                          }
-                        >
-                          <button
-                            className={
-                              styles[
-                                'header__container__search__item__options__item__counter-btn'
-                              ]
-                            }
-                            onClick={() => handleOption('children', 'd')}
-                            disabled={options.children <= 0}
-                          >
-                            -
-                          </button>
-                          <span
-                            className={
-                              styles[
-                                'header__container__search__item__options__item__counter-number'
-                              ]
-                            }
-                          >
-                            {options.children}
-                          </span>
-                          <button
-                            className={
-                              styles[
-                                'header__container__search__item__options__item__counter-btn'
-                              ]
-                            }
-                            onClick={() => handleOption('children', 'i')}
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                      <div
-                        className={
-                          styles[
-                            'header__container__search__item__options__item'
-                          ]
-                        }
-                      >
-                        <span
-                          className={
-                            styles[
-                              'header__container__search__item__options__item__text'
-                            ]
-                          }
-                        >
-                          Room
-                        </span>
-                        <div
-                          className={
-                            styles[
-                              'header__container__search__item__options__item__counter-container'
-                            ]
-                          }
-                        >
-                          <button
-                            className={
-                              styles[
-                                'header__container__search__item__options__item__counter-btn'
-                              ]
-                            }
-                            onClick={() => handleOption('room', 'd')}
-                            disabled={options.room <= 1}
-                          >
-                            -
-                          </button>
-                          <span
-                            className={
-                              styles[
-                                'header__container__search__item__options__item__counter-number'
-                              ]
-                            }
-                          >
-                            {options.room}
-                          </span>
-                          <button
-                            className={
-                              styles[
-                                'header__container__search__item__options__item__counter-btn'
-                              ]
-                            }
-                            onClick={() => handleOption('room', 'i')}
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
+                            <img src={city.image || ''} alt="" />
+                            <div
+                              className={
+                                styles[
+                                  'header__container__search__item__result__item__city'
+                                ]
+                              }
+                              onClick={(e: any) => {
+                                setDestination(e.target.innerText);
+                                setSearchTerm('');
+                              }}
+                            >
+                              {city.name}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div>Không có kết quả phù hợp</div>
+                      )}
                     </div>
                   )}
                 </div>
-                <div className="lsOptionItem">
-                  <span className="lsOptionText">
-                    Min price <small>per night</small>
-                  </span>
-                  <input
-                    type="number"
-                    onChange={(e) => setMin(e.target.value)}
-                    className="lsOptionInput"
-                    placeholder="1"
+              </div>
+              <div className="lsItem">
+                <label>Check-in - Check-out</label>
+                <span onClick={() => setOpenDate(!openDate)}>{`${format(
+                  dates[0].startDate,
+                  'EE d MMM',
+                )} – ${format(dates[0].endDate, 'EE d MMM')}`}</span>
+                {openDate && (
+                  <DateRange
+                    editableDateInputs={true}
+                    onChange={(item) => setDates([item.selection])}
+                    moveRangeOnFirstSelection={false}
+                    ranges={dates}
+                    minDate={new Date()}
+                    months={2}
+                    direction="horizontal"
+                    className={styles['header__container__search__item__date']}
                   />
-                </div>
-                <div className="lsOptionItem">
-                  <span className="lsOptionText">
-                    Max price <small>per night</small>
-                  </span>
-                  <input
-                    type="number"
-                    onChange={(e) => setMax(e.target.value)}
-                    className="lsOptionInput"
-                    placeholder="1000"
-                  />
+                )}
+              </div>
+              <div className="lsItem">
+                <div className="lsOption">
+                  <div className={styles['header__container__search__item']}>
+                    <span
+                      className={
+                        styles['header__container__search__item__text']
+                      }
+                      onClick={() => setOpenOptions(!openOptions)}
+                    >
+                      {`${options.adult} adults・${options.children} children・${options.room} room`}
+                    </span>
+                    {openOptions && (
+                      <div
+                        className={
+                          styles['header__container__search__item__options']
+                        }
+                      >
+                        <div
+                          className={
+                            styles[
+                              'header__container__search__item__options__item'
+                            ]
+                          }
+                        >
+                          <span
+                            className={
+                              styles[
+                                'header__container__search__item__options__item__text'
+                              ]
+                            }
+                          >
+                            Adult
+                          </span>
+                          <div
+                            className={
+                              styles[
+                                'header__container__search__item__options__item__counter-container'
+                              ]
+                            }
+                          >
+                            <button
+                              className={
+                                styles[
+                                  'header__container__search__item__options__item__counter-btn'
+                                ]
+                              }
+                              onClick={() => handleOption('adult', 'd')}
+                              disabled={options.adult <= 1}
+                            >
+                              -
+                            </button>
+                            <span
+                              className={
+                                styles[
+                                  'header__container__search__item__options__item__counter-number'
+                                ]
+                              }
+                            >
+                              {options.adult}
+                            </span>
+                            <button
+                              className={
+                                styles[
+                                  'header__container__search__item__options__item__counter-btn'
+                                ]
+                              }
+                              onClick={() => handleOption('adult', 'i')}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                        <div
+                          className={
+                            styles[
+                              'header__container__search__item__options__item'
+                            ]
+                          }
+                        >
+                          <span
+                            className={
+                              styles[
+                                'header__container__search__item__options__item__text'
+                              ]
+                            }
+                          >
+                            Children
+                          </span>
+                          <div
+                            className={
+                              styles[
+                                'header__container__search__item__options__item__counter-container'
+                              ]
+                            }
+                          >
+                            <button
+                              className={
+                                styles[
+                                  'header__container__search__item__options__item__counter-btn'
+                                ]
+                              }
+                              onClick={() => handleOption('children', 'd')}
+                              disabled={options.children <= 0}
+                            >
+                              -
+                            </button>
+                            <span
+                              className={
+                                styles[
+                                  'header__container__search__item__options__item__counter-number'
+                                ]
+                              }
+                            >
+                              {options.children}
+                            </span>
+                            <button
+                              className={
+                                styles[
+                                  'header__container__search__item__options__item__counter-btn'
+                                ]
+                              }
+                              onClick={() => handleOption('children', 'i')}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                        <div
+                          className={
+                            styles[
+                              'header__container__search__item__options__item'
+                            ]
+                          }
+                        >
+                          <span
+                            className={
+                              styles[
+                                'header__container__search__item__options__item__text'
+                              ]
+                            }
+                          >
+                            Room
+                          </span>
+                          <div
+                            className={
+                              styles[
+                                'header__container__search__item__options__item__counter-container'
+                              ]
+                            }
+                          >
+                            <button
+                              className={
+                                styles[
+                                  'header__container__search__item__options__item__counter-btn'
+                                ]
+                              }
+                              onClick={() => handleOption('room', 'd')}
+                              disabled={options.room <= 1}
+                            >
+                              -
+                            </button>
+                            <span
+                              className={
+                                styles[
+                                  'header__container__search__item__options__item__counter-number'
+                                ]
+                              }
+                            >
+                              {options.room}
+                            </span>
+                            <button
+                              className={
+                                styles[
+                                  'header__container__search__item__options__item__counter-btn'
+                                ]
+                              }
+                              onClick={() => handleOption('room', 'i')}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
+              <button onClick={handleSearch}>Search</button>
             </div>
-            <button onClick={handleSearch}>Search</button>
+            <HotelFilter
+              queryString={queryString}
+              setQueryString={setQueryString}
+              city={destination}
+              value={value}
+              setValue={setValue}
+            />
           </div>
           <div className="listResult">
-            {loading ? (
-              'loading'
-            ) : (
-              <>
-                <h1>
-                  {destination || '...'}: {(countData && countData[0]) || '-'}{' '}
-                  properties found
-                </h1>
-                {data?.map((item) => (
-                  <SearchItem item={item} key={item._id} />
-                ))}
-              </>
-            )}
+            <>
+              <h1>
+                {loading ? (
+                  <Skeleton width={300} />
+                ) : (
+                  `${destination || '...'}: ${data?.length} properties found`
+                )}
+              </h1>
+              {loading ? (
+                <SearchItemSkeleton count={6} />
+              ) : data && data.length > 0 ? (
+                data?.map((item) => <SearchItem item={item} key={item._id} />)
+              ) : (
+                <div
+                  className={styles['reservation-page__container__empty']}
+                >{`No hotel matches your search`}</div>
+              )}
+            </>
           </div>
         </div>
       </div>

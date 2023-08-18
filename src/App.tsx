@@ -9,6 +9,9 @@ import HotelList from './pages/HotelList';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ReservePage from './pages/ReservePage';
+import AllHotelPage from './pages/AllHotelPage';
+import UserReservationsPage from './pages/UserReservationsPage';
+import UserReservationDetails from './pages/UserReservationDetails';
 
 const App = () => {
   return (
@@ -20,6 +23,17 @@ const App = () => {
         <Route path="/reserve/:id" element={<ReservePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/reservations" element={<UserReservationsPage />} />
+        <Route path="/reservations/:id" element={<UserReservationDetails />} />
+
+        <Route path="/all-hotels" element={<AllHotelPage type={'Hotel'} />} />
+        <Route
+          path="/all-apartments"
+          element={<AllHotelPage type={'Apartment'} />}
+        />
+        <Route path="/all-resorts" element={<AllHotelPage type={'Resort'} />} />
+        <Route path="/all-villas" element={<AllHotelPage type={'Villa'} />} />
+        <Route path="/all-cabins" element={<AllHotelPage type={'Cabin'} />} />
       </Routes>
       <ToastContainer />
     </BrowserRouter>
